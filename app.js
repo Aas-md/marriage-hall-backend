@@ -4,6 +4,18 @@ const dotenv  = require("dotenv")
 dotenv.config()
 const listings = require('./routes/listingRoute.js')
 const Listing = require('./models/listingModel.js')
+const reviews = require('./routes/reviewRoute.js')
+const userRoute = require('./routes/userRoute.js')
+const passport = require('passport')
+const LocalStrategy = require('passport-local')
+const User = require('./models/userModel.js')
+const path = require("path")
+const session = require('express-session')
+const MongoStore = require('connect-mongo')
+const dbUrl = process.env.DB_URL;
+
+
+
 const mongo_url = process.env.DB_URL
 
 const app = express()
@@ -19,8 +31,47 @@ main().then(() => {
 })
 
 async function main() {
-    await mongoose.connect(mongo_url)
+     mongoose.connect(mongo_url)
 }
+
+
+const store = MongoStore.create({
+    mongoUrl : dbUrl,
+    crypto : {
+        secret : process.env.SECRET,
+    },
+    touchAfter : 24 * 3600,
+})
+
+store.on("error",()=>{
+    console.log("Error i mongo session store",err)
+})
+
+
+//sessions options
+
+const sessionOptions = {
+    store : store,
+    secret : process.env.SECRET,
+    resave : false,
+    saveUninitialized : true,
+    cookie : {
+        expires : Date.now() + 7 * 24 * 60 * 60 * 1000,
+        maxAge :  7 * 24 * 60 * 60 * 1000,
+        httpOnly : true
+    }
+
+}
+
+app.use(session(sessionOptions))
+
+app.use(passport.initialize())
+app.use(passport.session())
+passport.use(new LocalStrategy(User.authenticate()))
+passport.serializeUser(User.serializeUser())
+passport.deserializeUser(User.deserializeUser())
+
+
 
 
 
@@ -32,6 +83,8 @@ app.get('/', (req, res) => {
 
 
 app.use('/listings',listings)
+app.use('/listings/:id/reviews',reviews)
+app.use('/',userRoute)
 
 
 app.listen(3000, () => {

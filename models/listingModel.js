@@ -16,6 +16,18 @@ const listingSchema = Schema({
     address: String,
     city: String,
 
+    reviews: [
+        {
+            "type": mongoose.Schema.Types.ObjectId,
+            "ref": "Review"
+        }
+    ],
+
+    owner: {
+        type: Schema.Types.ObjectId,
+        ref: "User"
+    }
+
 })
 
 

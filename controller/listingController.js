@@ -14,7 +14,9 @@ module.exports.addNewListing = async (req, res, next) => {
 
     try {
         const listing = req.body.listing
+          
         const newListing = new Listing(listing)
+          newListing.owner = req.user._id
 
         await newListing.save()
         res.send('listing added successfully')
@@ -31,14 +33,20 @@ module.exports.showListing = async (req, res) => {
     try {
         const { id } = req.params;
         const listing = await Listing.findById(id)
+        .populate({
+            path: "reviews",
+            populate: {
+                path: "author"
+            }
+        }).populate('owner')
 
         if (listing)
             res.send(listing)
         else {
-            req.send("error", "The listing is exist")
+            req.send("error", "The listing is not exist")
         }
     } catch (err) {
-        res.send("some thing went wrong " + err)
+        res.send(err)
     }
 }
 
