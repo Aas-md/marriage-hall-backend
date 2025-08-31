@@ -5,15 +5,18 @@ let controller = require('../controller/listingController.js')
 const multer  = require('multer')
 const {storage} = require('../cloudConfig.js')
 const upload = multer({ storage})
+const middleware = require('../midlewares.js')
+const { isLoggedIn, validateListing } = middleware
+const wrapAsync = require("../utils/wrapAsync.js")
 
 
 router.route('/')
-.post( upload.single('image'),controller.addNewListing)
-.get(controller.index)
+.post(isLoggedIn,upload.single('listing[image]'),validateListing, wrapAsync(controller.addNewListing))
+.get(wrapAsync(controller.index))
 
 router.route('/:id')
- .put(controller.updateListing)
- .get(controller.showListing)
- .delete(controller.deleteListing)
+ .put(isLoggedIn,middleware.isOwner,upload.single('listing[image]'),validateListing,wrapAsync(controller.updateListing))
+ .get(wrapAsync(controller.showListing))
+ .delete(isLoggedIn,middleware.isOwner,wrapAsync(controller.deleteListing))
 
 module.exports = router

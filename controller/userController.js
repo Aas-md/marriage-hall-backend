@@ -1,9 +1,7 @@
 const User = require('../models/userModel.js')
 module.exports.signup = async (req, res) => {
 
-    try {
-
-        let { email, username, password } = req.body;
+        let { email, username, password } = req.body
         const newUser = new User({
             username: username,
             email: email,
@@ -15,13 +13,7 @@ module.exports.signup = async (req, res) => {
                 res.send("error in signup" + err)
             res.send({ status: "success", msg: "Welcome to mariageHall",user : registeredUser })
         })
-
-        //   
-
-    } catch (e) {
-
-        res.send(e)
-    }
+  
 }
 
 module.exports.login = async (req, res) => {
