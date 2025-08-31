@@ -44,7 +44,7 @@ const store = MongoStore.create({
 })
 
 store.on("error",()=>{
-    console.log("Error i mongo session store",err)
+    console.log("Error in mongo session store",err)
 })
 
 
@@ -73,6 +73,12 @@ passport.deserializeUser(User.deserializeUser())
 
 
 
+app.use((req,res,next)=>{
+    // res.locals.success = req.flash("success");
+    // res.locals.error = req.flash("error");
+    res.locals.currUser = req.user;
+    next();
+})
 
 
 app.get('/', (req, res) => {
@@ -97,6 +103,29 @@ app.listen(3000, () => {
 // Catch-all 404 handler
 app.all("{*any}", (req, res, next) => {
    res.send("page not found")
+})
+
+
+// Error-handling middleware (must be last)
+
+app.use((err, req, res, next) => {
+    const statusCode = err.statusCode || 500
+    const message = err.message || "Something went wrong"
+
+    // Extract location from stack trace
+    const stackLines = err.stack?.split('\n')
+    const locationLine = stackLines && stackLines[1] ? stackLines[1].trim() : "Location not found"
+
+    // Log error on server console (good for debugging)
+    console.error(`[ERROR] ${message} -> ${locationLine}`)
+
+    // Send JSON response to frontend
+    res.status(statusCode).json({
+        success: false,
+        error: message,
+        statusCode,
+        location: locationLine
+    })
 })
 
 

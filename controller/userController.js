@@ -13,9 +13,10 @@ module.exports.signup = async (req, res) => {
         await req.login(registeredUser, (err) => {
             if (err)
                 res.send("error in signup" + err)
+            res.send({ status: "success", msg: "Welcome to mariageHall",user : registeredUser })
         })
 
-        //   res.send({ status: "success", msg: "Welcome to mariageHall",user : registeredUser })
+        //   
 
     } catch (e) {
 

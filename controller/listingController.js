@@ -13,11 +13,12 @@ module.exports.index = async (req, res) => {
 module.exports.addNewListing = async (req, res, next) => {
 
     try {
-        const listing = req.body.listing
-          
+          let url = req.file?.path
+        let filename = req.file?.filename
+        const listing = req.body.listing 
         const newListing = new Listing(listing)
-          newListing.owner = req.user._id
-
+        newListing.owner = req.user._id
+        newListing.image = { url, filename }
         await newListing.save()
         res.send('listing added successfully')
 
@@ -33,12 +34,12 @@ module.exports.showListing = async (req, res) => {
     try {
         const { id } = req.params;
         const listing = await Listing.findById(id)
-        .populate({
-            path: "reviews",
-            populate: {
-                path: "author"
-            }
-        }).populate('owner')
+            .populate({
+                path: "reviews",
+                populate: {
+                    path: "author"
+                }
+            }).populate('owner')
 
         if (listing)
             res.send(listing)

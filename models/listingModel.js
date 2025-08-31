@@ -8,10 +8,7 @@ const listingSchema = Schema({
         require: true
     },
     desc: String,
-    image: {
-        type: String,
-        default: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?fm=jpg&q=60&w=1200"
-    },
+
     price: Number,
     address: String,
     city: String,
@@ -26,6 +23,17 @@ const listingSchema = Schema({
     owner: {
         type: Schema.Types.ObjectId,
         ref: "User"
+    },
+    image: {
+        url: {
+            type : String,
+             default: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?fm=jpg&q=60&w=1200"
+            },
+        filename: {
+            type : String,
+            default:'random image'
+        },
+        
     }
 
 })
