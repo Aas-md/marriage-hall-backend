@@ -10,6 +10,7 @@ const User = require('./models/userModel.js')
 const path = require("path")
 const session = require('express-session')
 const MongoStore = require('connect-mongo')
+const cors = require('cors');
 const dbUrl = process.env.DB_URL
 
 const mongo_url = process.env.DB_URL
@@ -17,6 +18,7 @@ const mongo_url = process.env.DB_URL
 const app = express()
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+app.use(cors()); 
 
 main().then(() => {
     console.log("connected to db")
