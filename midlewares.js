@@ -19,22 +19,30 @@ module.exports.validateListing = (req, res, next) => {
 
 module.exports.isOwner = async (req, res, next) => {
     const { id } = req.params;
-    let listing = await Listing.findById(id)
-    if (listing == null || !listing.owner) {
-        return res.status(401).json({ error: "user or listing not found" })
-    }
-    if (!listing?.owner?._id.equals(res.locals.currUser._id)) {
+    const listing = await Listing.findById(id).populate("owner");
+    if (!listing) throw new ExpressError(401, "Listing not found");
 
-        return res.status(401).json({ error: "Not the owner in" })
+    // user pick karo: session ya token
+    let user = res.locals.currUser || req.user;
+    if (!user && req.headers.authorization) {
+        const token = req.headers.authorization.split(" ")[1]
+        const payload = jwt.verify(token, "secretCode")
+        user = await User.findById(payload.id);
     }
+    if (!user) throw new ExpressError(401, "Not authenticated")
+
+    // owner check
+    if (!listing.owner._id.equals(user._id)) {
+        throw new ExpressError(401, "You are not the owner")
+    }
+
     next();
-
-}
+};
 
 module.exports.isLoggedIn = async (req, res, next) => {
 
     if (req.isAuthenticated()) {
-        console.log("LogedIn")
+
         return next()
     }
 
@@ -47,19 +55,22 @@ module.exports.isLoggedIn = async (req, res, next) => {
 
             const user = await User.findById(payload.id);
             if (!user) {
-                return res.status(401).json({ error: 'User not found' })
+
+                throw new ExpressError(401, 'User not found!')
             }
 
             req.user = user
 
             return next()
         } catch (err) {
-            return res.status(401).json({ error: 'Invalid token' })
+            throw new ExpressError(401, 'You are not logged in')
+
         }
     }
 
     // 3. Nahi mila to unauthorised
-    return res.status(401).json({ error: 'Not logged in' })
+
+    throw new ExpressError(401, 'User not found')
 
 }
 

@@ -26,13 +26,13 @@ module.exports.login = async (req, res) => {
     const user = req.user;
 
     // payload bana lo (jo tumhe token me chahiye)
-    const payload = {
+    const payload = { 
         id: user._id,              // ya user.id
         username: user.username,
     };
 
     // token sign karo
-    const token = jwt.sign(payload, "secretCode", { expiresIn: "1h" }); // 1 hour expire
+    const token = jwt.sign(payload, "secretCode", { expiresIn: "1h" }) // 1 hour expire
 
     // client ko token return karo
     res.status(200).json({

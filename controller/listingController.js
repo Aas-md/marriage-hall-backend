@@ -6,7 +6,7 @@ module.exports.index = async (req, res) => {
 }
 
 module.exports.addNewListing = async (req, res, next) => {
-
+    console.log("this is add lsiting function")
     let url = req.file?.path
     let filename = req.file?.filename
     const listing = req.body?.listing
@@ -57,11 +57,12 @@ module.exports.deleteListing = async (req, res) => {
     const deletedListing = await Listing.findByIdAndDelete(id)
 
     if (!deletedListing) {
-        return res.status(404).send("Listing not foundd")
+         throw new ExpressError(404,  "Listing not foundd")
+        
     }
     res.send({
         success: true,
-        message: "Listing deleted successfully",
+        msg: "Listing deleted successfully",
         data: deletedListing
     })
 
