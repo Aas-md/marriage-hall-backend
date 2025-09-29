@@ -6,7 +6,7 @@ module.exports.index = async (req, res) => {
 }
 
 module.exports.addNewListing = async (req, res, next) => {
-    console.log("this is add lsiting function")
+ 
     let url = req.file?.path
     let filename = req.file?.filename
     const listing = req.body?.listing
@@ -39,26 +39,38 @@ module.exports.showListing = async (req, res) => {
 
 
 module.exports.updateListing = async (req, res) => {
-   
-    const { id } = req.params;
+    
+    
+    const { id } = req.params
+
+    if (!req.body.listing) {
+        throw new ExpressError(400, 'No listing data provided');
+    }
+
     let listing = await Listing.findByIdAndUpdate(id, { ...req.body.listing })
-     if (typeof req.file !== 'undefined') {
+
+    if (!listing) {
+    throw new ExpressError(404, 'Listing not found');
+  }
+
+    if (typeof req.file !== 'undefined') {
         let url = req.file.path
         let filename = req.file.filename
         listing.image = { filename, url }
         await listing.save()
     }
-    res.send('listing updated succssfully')
+    res.json({ msg: 'listing updated successfully', listing })
+
 }
 
 module.exports.deleteListing = async (req, res) => {
-    
+
     const { id } = req.params
     const deletedListing = await Listing.findByIdAndDelete(id)
 
     if (!deletedListing) {
-         throw new ExpressError(404,  "Listing not foundd")
-        
+        throw new ExpressError(404, "Listing not foundd")
+
     }
     res.send({
         success: true,

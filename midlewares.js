@@ -29,7 +29,7 @@ module.exports.isOwner = async (req, res, next) => {
         const payload = jwt.verify(token, "secretCode")
         user = await User.findById(payload.id);
     }
-    if (!user) throw new ExpressError(401, "Not authenticated")
+    if (!user) throw new ExpressError(401, "Not authenticated") 
 
     // owner check
     if (!listing.owner._id.equals(user._id)) {
