@@ -12,7 +12,7 @@ module.exports.signup = async (req, res) => {
 
     await req.login(registeredUser, (err) => {
         if (err)
-            res.send("error in signup" + err)
+           throw new ExpressError(204,"error in signup" + err)
         const token = jwt.sign({ id: registeredUser._id }, 'secretCode', { expiresIn: '7d' })
         res.send({ status: "success", msg: "Welcome to mariageHall", user: registeredUser, token })
     })
@@ -41,7 +41,7 @@ module.exports.login = async (req, res) => {
         token,                    // yeh frontend me localStorage me store karo
         user: {                   // optional: user info bhi bhej sakte ho
             id: user._id,
-            username: user.username 
+            username: user.username   
         }
     });
 };
@@ -52,7 +52,7 @@ module.exports.logout = (req, res, next) => {
 
     req.logout((err) => {
         if (err) {
-            return res.json({ status: "error", msg: err })
+            throw new ExpressError(204,err)
         }
         res.json({ status: "success", msg: "You are logged out" })
     })

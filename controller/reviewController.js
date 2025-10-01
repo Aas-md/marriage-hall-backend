@@ -6,7 +6,7 @@ module.exports.addReview = async (req, res) => {
         let id = req.params.id
         let listing = await Listing.findById(id)
         if (!listing) {
-                throw new Error("Listing not found exception")
+                throw new ExpressError(404,"Listing not found exception")
         }
         let review = Review(req.body.review)
         listing.reviews.push(review)

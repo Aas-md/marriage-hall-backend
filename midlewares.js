@@ -6,7 +6,7 @@ const ExpressError = require("./utils/expressError.js")
 const User = require('./models/userModel.js')
 
 module.exports.validateListing = (req, res, next) => {
-
+   
     let { error } = listingSchema.validate(req.body)
 
     if (error) {
@@ -24,7 +24,7 @@ module.exports.isOwner = async (req, res, next) => {
 
     // user pick karo: session ya token
     let user = res.locals.currUser || req.user;
-    if (!user && req.headers.authorization) {
+    if (req.headers.authorization && !user) {
         const token = req.headers.authorization.split(" ")[1]
         const payload = jwt.verify(token, "secretCode")
         user = await User.findById(payload.id);
@@ -32,7 +32,7 @@ module.exports.isOwner = async (req, res, next) => {
     if (!user) throw new ExpressError(401, "Not authenticated") 
 
     // owner check
-    if (!listing.owner._id.equals(user._id)) {
+    if (!listing?.owner?._id.equals(user?._id)) {
         throw new ExpressError(401, "You are not the owner")
     }
 
@@ -40,7 +40,6 @@ module.exports.isOwner = async (req, res, next) => {
 };
 
 module.exports.isLoggedIn = async (req, res, next) => {
-
     if (req.isAuthenticated()) {
 
         return next()
@@ -63,7 +62,7 @@ module.exports.isLoggedIn = async (req, res, next) => {
 
             return next()
         } catch (err) {
-            throw new ExpressError(401, 'You are not logged in')
+            throw new ExpressError(401, 'You are not logged in' + err)
 
         }
     }
